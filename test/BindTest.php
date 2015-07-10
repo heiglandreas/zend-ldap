@@ -185,7 +185,10 @@ class BindTest extends \PHPUnit_Framework_TestCase
         } catch (Exception\LdapException $zle) {
             /* Note that if your server actually allows anonymous binds this test will fail.
              */
-            $this->assertContains('Failed to retrieve DN', $zle->getMessage());
+            if (! getenv('TESTS_ZEND_LDAP_ANONYMOUS_BIND_ALLOWED')) {
+                $this->assertContains('Failed to retrieve DN',
+                    $zle->getMessage());
+            }
         }
     }
 
