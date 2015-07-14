@@ -30,15 +30,30 @@ notifications:
   irc: "irc.freenode.org#zftalk.dev"
   email: false
 
+addons:
+  apt:
+    packages:
+      - slapd
+      - ldap-utils
+
+env:
+  global:
+    - TESTS_ZEND_LDAP_ONLINE_ENABLED=true
+    - TESTS_ZEND_LDAP_USE_START_TLS=false
+
 before_install:
-  - echo "extension=ldap.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
   - composer self-update
   - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then composer require --dev --no-update satooshi/php-coveralls ; fi
 
 install:
-  - sudo test/travis/setup_ldap.sh
+  - mkdir -p $TRAVIS_BUILD_DIR/ldap
+  - sudo chmod -R 777 $TRAVIS_BUILD_DIR/ldap
+  - sudo test/travis/configure_ldap.sh
   - travis_retry composer install --no-interaction --ignore-platform-reqs
+
+before_script:
+  - phpenv config-add .ci/php.ini || return 0
 
 script:
   - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then ./vendor/bin/phpunit --coverage-clover clover.xml ; fi
