@@ -52,9 +52,6 @@ install:
   - sudo test/travis/configure_ldap.sh
   - travis_retry composer install --no-interaction --ignore-platform-reqs
 
-before_script:
-  - phpenv config-add .ci/php.ini || return 0
-
 script:
   - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then ./vendor/bin/phpunit --coverage-clover clover.xml ; fi
   - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then ./vendor/bin/phpunit ; fi
